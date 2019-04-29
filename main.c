@@ -1,207 +1,294 @@
-#include <stdio.h>          //this is for fget(), and stdin
+#include <stdio.h>          //this is for fgets(), and stdin
 #include <string.h>         //this is for stringlen()
 #include <stdlib.h>
-#include "cipher_info.h"    //this is our header file
+#include <ctype.h>
+#include "cipher_info.h"    //this is our header file, I'm not exactly sure if this is what the assignment wants, and at this point im too afraid to ask
+//making this comment so git commits
+/*This are the prototypes for the encryption/decryption functions. They take the plaintext string 
+ and a KEY then use some math to change the ascii values around to decrypt/encrypt
+*/
+void en_rotation(char *MESSAGE, int KEY);
 
-/*this is the prototype for the encryption function. It takes  */
-void roten(char codestr[], int rotfac);
+void de_rotation(char *MESSAGE, int KEY);
 
-/*This is the decryption function. It passes the encrypted string (codestr), a key (rotfac) and passes it to 
-the function of the same name below */
-void rotde(char codestr[], int rotfac);
-//      Encrypting and decrytping substitution ciphers
-//          No algebra here, essentially just a lookup table.
-//          Use an array to hold the alphabet string
-void suben(char codestr[], char substr[]);
+//void de_brute_rotation(char *MESSAGE, int KEY);
 
-void subde(char codestr[], char substr[]);    
+/* Encrypting and decrytping substitution ciphers
+        No algebra here, essentially just a lookup table.
+        Use an array to hold the alphabet string
+*/
+char *en_substitution(char *MESSAGE, char CODE[]);
 
-/*This is the main function. It takes a key and an encrypted/decrypted sting
-before passing it on to the appropriate funtion by using a switch
-It returns the users original string, and the changed text  */
+char *de_substitution(char *MESSAGE, char CODE[]);    
+
+int *find_index(char *CODE,char MESSAGE);
+
 int main(void){
-    int option = 2;             //for the switch so it knows what function it's handling
-    int rotfac = 2;             //the key for rotation ciphers
-    char codestr[256];      //array storage for the string to be encrypted/decrypted
-    char substr[256];       //array for storing the key for substitution ciphers
+/*  
+    int option;         //enables a switch for choosing a method
+    int KEY;                //used to change values of the ratation ciphers
+    char message[256];      //contains our message, should be big enough for the purposes of this course
+    char CODE[26];          //this is to hold the changed alphabet
+*/   
+// this is a menu for selecting options, nothing fancy here, may come from a header later based on time constraints
+    printf("Please choose an option for encryption or decryption\n");
+    printf("1. Encryption via rotation\n");
+    printf("2. Decryption via rotation\n");
+    printf("3. Encryption via substitution\n");
+    printf("4. Decryption via substitution\n");
+//    printf("5. Brute force rotation decryption\n");
     
-    
-
-    
-    
-//set up a menu to initialise the switch
-    printf("select decryption option: \n1.Rotation encryption with key\n2.Rotation decryption with key\n");
-    printf("3.Substitution encryption with key\n4.Substitution decryption with key\n");
-    printf("Select option: ");
-    scanf("%d", &option);
-
-
-//This is the switch that will take user info and return appropriate respones, or notify the user if an invalid option has been selected
-switch(option){
-
-//1.Rotation Encryption: Get the text string and rotation amount
-//      scan rotation factor into memory
-//      pass required variables into the appropriate function
-    case 1:
-        printf("Provide a rotation factor\n");              //ask for and scan in a rotation factor
-        scanf("%d", &rotfac);
-        
-        printf("Input string for encryption: \n");            
-        fgets(codestr, sizeof(codestr), stdin);             //scanf doesnt like spaces so using fgets, this also gets the size of the string
-        
-        printf("Your plain text is: %s" codestr);
-        
-        
-        void roten(char codestr[], int rotfac);             //calling to the encryption function
-        
-        printf("The text will now read as:");
-        roten(codestr, rotfac);                             //this is where we want the printf from the function we called to, to be
-        
-        printf("\n");                                      
-        
-        
+    switch(OPTION){
+        case 1:
+        /*This takes in the message, the KEY, and sends it to the function en_rotation
+         * it then returns the results from that function, and pauses the system so the user can see the results
+         *The first 3 lines of this are going to repeated across the board as it gathers basic info required everything to function
+         * It may be deleted later once this is reading that info from elsewhere.
+         */
+            printf("\nRotation encryption\n");
+            
+            printf("\nEnter the text for encryption: ");
+            
+            fgets(MESSAGE, sizeof(MESSAGE), stdin);
+            
+            printf("\nYour plaintext is: %s \n", MESSAGE);
+            
+            printf("Your encrpyted text is: ");
+            
+            en_rotation(MESSAGE, KEY);           
         break;
-    
-/*2.Rotation Decryption: Get the text string and rotation amount
-      scan rotation amount into memory    
-      pass required variables into the appropriate function
-*/
-    case 2:
-        printf("Provide a rotation factor\n");              //ask for and scan in a rotation factor
-        scanf("%d", &rotfac);
-        
-        fgets(codestr, sizeof(codestr), stdin);             //scanf doesnt like spaces so using fgets, this also gets the size of the string
-          
-        void rotde(char codestr[], int rotfac);             //calling to the decryption function
-        
-        printf("The text will now read as: ");              
-        rotde(codestr, rotfac);                             //Just like before, but we're printing our decryption here
-        
-        printf("\n");
-
-
+         
+        case 2:
+        //this is largely similar to case 1 (encryption) but we're going the other way this time
+            printf("\nRotation decryption\n");
+            
+            printf("Enter the text for decrpytion: ");
+            
+            fgets(MESSAGE, sizeof(MESSAGE), stdin);
+            
+            printf("\nYour plaintext is: %s \n", MESSAGE);
+            
+            printf("Your decrpyted text is: ");
+            
+            de_rotation(MESSAGE, KEY);
         break;
         
-//3.Sub Enryption: Get the text string and alphabet substitution
-//      scan alphabet string into an array
-//      pass required variables into the appropriate function                       
-   case 3:
-        printf("Input string for encryption");
-        fgets("%s", codestr);
-        
-        fgets(codestr, sizeof(codestr), stdin);         //this is just like the rotation ciphers
-        
-        printf("input the substitution string");
-        fgets("%s", substr);
-        
-        fgets(substr, sizeof(substr), stdin);           //this is just like the roation ciphers but sending the information to substr instead
-        
-        char suben(char codestr[], char substr[]);      //making the call to the substitution encryption function
-
+        case 3:
+        /*This case handles substitution encryption. It's a bit tricky because C doesn't like just replacing things
+         * so it has to function as essentially a lookup table and print letter by letter
+         */
+            printf("\nSubstitution encryption\n");
+            
+            printf("Enter the text for encryption: ");
+            
+            fgets(MESSAGE, sizeof(MESSAGE), stdin);
+            
+            /*declaring the message_sub_encrypt variable here so that I don't have to worry about it elsewhere
+             * this is probably a bad practice but i expect this to be deleted in its entirity fairly soon*/
+            char message_sub_encrypt = en_substitution(MESSAGE, CODE);
+            
+            printf("You plaintext is: %s\n", MESSAGE);
+            
+            printf("Your encrypted text is: %s\n", message_sub_encrypt);          
         break;
- /*   
-//4.Sub Decryption: Get the text string and alphabet substitution
-//      scan alphabet string into memory
-//      pass required variables into the appropriate function
-    case 4:
-        printf("Input string for decryption");
-        fgets("%s", &codestr);
         
-        printf("input the substitution string");
-        fgets("%s", &substr);
-        
-        char subde(char codestr[], char substr[]);
-
+        case 4:
+        /* This is going to be largely similar to the encryption but the function itself will call to an indexing function
+         * 
+         */
+            printf("\nSubstitution decryption\n");
+            
+            printf("Enter the text for decryption: ");
+            
+            fgets(MESSAGE, sizeof(MESSAGE), stdin);
+            
+            char decrypt_sub_message = en_substitution(MESSAGE, CODE);      //surprise a bad habit makes a return because im largely copy pasting
+                                                                            //similar structures
+            printf("You plaintext is: %s\n", MESSAGE);
+            
+            printf("Your encrypted text is: %s\n", decrypt_sub_message);           
         break;
-
-
-//deafault.Throw the user out for invalid parameter   
-    default: printf("invalid parameter supplied");      //bad variable from the user
-        break; 
+      
+//        case 5:
+            /*This is just going to run a function identical to de_rotation and print out every possible result
+             * it'll just have a while loop, only need the message
+             */
+ /*           printf("Brute force rotation\n");
+            
+            printf("Enter the text for decryption: ");
+            
+            fgets(MESSAGE, sizeof(MESSAGE), stdin);
+            
+             printf("\nYour plaintext is: %s \n", MESSAGE);
+            
+            printf("Your decrpyted text is in here somewhere...\n ");
+            
+            de_brute_rotation(MESSAGE, KEY);
+        break;
+ */       
+        default:
+            printf("Invalid parameter supplied");
+        break;
+    
+    }
+    
     return 0;
-  }
-  return 0;
-  }
+}
 
-
-/*This is the decryption function known as rotde
-It ses a while loop to print the letters of an encrypted string as plain text.
-Takes in:   Text string
-            Rotation factor
-            Uses this equation: d(c) = (c − k)(mod 26) NOTE: it uses this format, not the exact letters
-Returns: A decrypted string of letters, followed by a new line when the loop terminates
+/*This is the function for rotation encyption
+    It takes in the message, and the rotation KEY
+    It uses this KEY to change the ascii value of each letter in the message, resulting in an encrypted message being returned.
+local variables will be a counting integer i
+    a temp value for adjusting ascii values
+    and a value to use for printing the value of each new letter before being incremented
 */
-void rotde(char codestr[], int rotfac){
+void en_rotation(char* MESSAGE, int KEY){
     int i = 0;
-    int cipherValue;
-    char cipher;
+    int newValue;
+    char newLetter;
     
-    printf("decryption reached");
-
-    while(codestr[0] != '\0' && strlen(codestr)-1 > i){
-         cipherValue = ((int)codestr[i] - 65 - rotfac) % 26 + 65;
-         cipher = (char)(cipherValue);
+/* I'm going to do this in a while loop because that's what feels comfortable for me here
+The while loop is set up to run while one of two conditions have not been met
+    The current character of the string "message" is not '\0' which is the value for enter
+    The value of i is less than 255 which will allow the user to use all the space available in the array
+*/
+    
+    while(MESSAGE[i] != '\0' && strlen(MESSAGE) > i){
         
-        printf("%c", cipher);
+        newValue = ((int)MESSAGE[i] - 65 + KEY) % 26 + 65;      //this is changing our ascii values to other letters for us
+        
+        newLetter = (char)(newValue);                           //this is temp storage for the new value
+        
+        printf("%c", newLetter);                                //printing the new letter so that we don't need to worry about saving it somewhere
+        i++;                                                    //incrementing the counter so that it doesn't loop the first letter forever
+    }
+    printf("\n");
+}
+/*This is the function for ratoation decryption
+   It functions largely identically to en_rotation, except that there is a slight adjustment
+   that makes it go in the other direction
+ It takes all the same inputs, and puts out info in the same manner as en_rotation
+ It will also contain all the same local variable
+ The only reason it's a seperate function is because im trash at coding and didn't want to muddle them together and mess something up
+ */
+void de_rotation(char *MESSAGE, int KEY){
+    int i = 0;
+    int newValue;
+    char newLetter;
+ /* I'm going to do this in a while loop because that's what feels comfortable for me here
+The while loop is set up to run while one of two conditions have not been met
+    The current character of the string "message" is not '\0' which is the value for enter
+    The value of i is less than 255 which will allow the user to use all the space available in the array
+*/  
+    while(MESSAGE[i] != '\0' && strlen(MESSAGE) > i){
+        
+        newValue = ((int)MESSAGE[i] - 65 - KEY) % 26 + 65;      //the only difference is here right before "KEY" as this is going in the other direction
+        
+        newLetter = (char)(newValue);
+        
+        printf("%c", newLetter);
+        
         i++;
     }
     printf("\n");
 }
 
-/*This is the encryption function, known as roten. It uses the same while loop method as rotde
-but takes plain text and changes it to an encrypted string
-Takes in:   Text string
-            Rotation factor
-            e(x) = (m + k)(mod 26) This format is similar to encryption but uses a + instead of a -
-Returns: An encrypted string of letters followed by a new line at the end 
-*/
-void roten(char* codestr, int rotfac){
-    int i = 0;
-    int cipherValue;
-    char cipher;
- 
-    while(codestr[i] != '\0' && strlen(codestr)-1 > i){
-         cipherValue = ((int)codestr[i] - 65 + rotfac) % 26 + 65;
-         cipher = (char)(cipherValue);
-     
-         printf("%c", cipher);
-         i++;
-    }
-    printf("\n");
-}
-
-//Function for decrypting substitution goes here
-//REQUIREMENTS: Text string
-//              alphabet string
-
-char suben(char *codestr[], char substr[]){
-    int i = 0;
-    int length = strlen(codestr);
-    char *encrypt_mess = (char*) malloc(sizeof(char)*length);
+/*Substitution has been weird, so this will essentially go character by character, and only make a change if it needs to.
+ *Takes in the plaintext message, and the CODE strings 
+ *I'm only using upper case letters, so I'm going to make use of toupper just in case 
+ * uses local counter i, an int length to check for weird values, and an int encryption_index to help change 
+ * the letters to appropriate values
+ * at the end of the loop it returns the new encrypted message(message_sub_encrypt)
+ */
+char *en_substitution(char *MESSAGE, char CODE[]){
+    int length = strlen(MESSAGE);
+    int encryption_index;
     
+    char *message_sub_encrypt = (char *) malloc(sizeof(char)*length);   //allocating space for the message_sub_encrypt here
+    
+/*I'm running a for loop here because it felt a little more suited to this, than the while loops in the rotation stuff
+ * In reality they are probably totally interchangable.
+ *This will also contain an if statement which checks if the letter on the CODE is the same as the one in the message.
+ * if they are, then the function just sends it
+ */
+
     for(int i = 0; i < length; i++){
-        int endex = toupper(codstr[i]) - 'a';
-        if(endex >= 0 && endex < 26){
-            encrypt_mess[i] = substr[i];
+        int encryption_index = toupper(MESSAGE[i]) - 'A';       //bringing ascii values to the 0-26 range to make things easier
+        if(encryption_index >= 0 && encryption_index <26){      //0-26 are postisions in the CODE string A through Z
+            message_sub_encrypt[i] = CODE[encryption_index];     //this is where the change happens
         }else{
-            encrypt_mess[i] = codestr[i]
+            message_sub_encrypt[i] = MESSAGE[i];                //if theyre the same then the loops just sends it as is
         }
     }
-    return encrypt_mess
+    return message_sub_encrypt;
+}
+/*This is the decryption sub function, it does similar stuff to the last one.
+ * This one is special because it makes use of another function called index_lookup which ill talk about there
+ * other than that it uses all the same stuff ints for i and length, then a decryption_index and (a new because of 
+ * the new index function being used here) code_index for ascii stuff
+ * then it passes back decrypt_sub_message
+ */
+char *de_substitution(char *MESSAGE, char CODE[]){
+    int length = strlen(MESSAGE);
+    int decryption_index;
+    int code_index;
+    
+    char *decrypt_sub_message = (char *) malloc(sizeof(char)*length);       //assigning memory
+    
+    for(int i = 0; i < length; i++){
+        int decryption_index = toupper(MESSAGE[i] - 'A');  
+        if(decryption_index >= 0 && decryption_index < 26){
+            int code_index = find_index(CODE, toupper(MESSAGE[i]));
+            
+           //just adding the ascii value of 'A' to the altered code_index value to get the original value          
+            decrypt_sub_message[i] = 'A' + code_index;     
+            
+        }else{
+            decrypt_sub_message[i] = MESSAGE[i];
+        }
+    }
+    return decrypt_sub_message;
 }
 
-//Function for encrypting substitution goes here
-//REQUIREMENTS: Text string
-//              alphabet string
-/*
-char subde(char codestr[], char substr[]){
-    
-    
-    
-    if(strcmp(codestr, substr) == 0){
-        printf("%s\n", codestr);
-        printf("%s\n", codestr);
-    }else{
-        
+/*This is the find_index function that is used in de_substitution
+ * this iterates until it finds a match, and then sends back the value to 
+ * de_substitution
+ */
+int *find_index(char *CODE,char MESSAGE){
+  
+  for(int i = 0 ; i < 26; i++){
+      if(CODE[i] == MESSAGE){
+      
+      return i;
     }
+  }
+  return -1;
+}
+/*Oh look its de_brute_rotation
+ * we're just running de_decryption 25 times because there are only 26 combinations and we already have one
+ */
+/*void de_brute_rotation(char *MESSAGE, int KEY){
+    int i = 0;
+    int j = 0;
+    int newValue;
+    char newLetter;
+    char newWord[256];
+    
+    //the for loop here should make the while loop repeat 25 more times
+    for(int j = 0; j < 26; j++){
+        while(MESSAGE[i] != '\0' && strlen(MESSAGE) > i){
+        
+            newValue = ((int)MESSAGE[i] - 65 - KEY) % 26 + 65;     
+        
+            newLetter = (char)(newValue);
+        
+            printf("%c", newLetter);
+        
+            i++;
+        }
+        newWord[j] == newValue;
+        printf("\n");
+        KEY++;
+    }
+
 }*/
